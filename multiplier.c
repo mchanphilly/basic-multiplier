@@ -22,9 +22,10 @@ void log_multiply(FILE* fptr, int32_t a, int32_t b) {
 void specific_multiply(FILE* fptr) {
     // 0 times 0
     log_multiply(fptr, 0, 0);
+    log_multiply(fptr, 0, 1);
+    log_multiply(fptr, 1, 1);
     log_multiply(fptr, INT32_MAX, 0);
     log_multiply(fptr, INT32_MIN, 0);
-    log_multiply(fptr, 1, 1);
     log_multiply(fptr, INT32_MAX, 1);
     log_multiply(fptr, INT32_MIN, 1);
     log_multiply(fptr, INT32_MAX, INT32_MAX);
