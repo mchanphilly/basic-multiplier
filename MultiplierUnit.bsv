@@ -26,27 +26,31 @@ module mkMultiplierUnit(MultiplierUnit);
 
     rule work(state == Busy);
         // Booth recoding
-        Bit#(33) p_ = signExtend(p);
-        Bit#(33) b_ = signExtend(b);
-        // This turns into a mux choosing between 3.
-        Bit#(33) new_p = case ({a[0], last_a}) matches
-            2'b01: {p_ + b_};
-            2'b10: {p_ - b_};
-            default: {p_};  // to massage compiler
+        Bit#(34) p_ = signExtend(p);
+        Bit#(34) b_ = signExtend(b);
+        Bit#(34) b2_ = signExtend(Bit#(33)'{b, 0});
+        // Mux choosing between 5; default is optimized out.
+        Bit#(34) new_p = case ({a[1:0], last_a})
+            3'b111, 3'b000: {p_};
+            3'b001, 3'b010: {p_ + b_};
+            3'b101, 3'b110: {p_ - b_};
+            3'b011: {p_ + b2_};
+            3'b100: {p_ - b2_};
+            default: {0};  // never happens
         endcase;
         
-        p <= {new_p[32:1]};
-        a <= {new_p[0], a[31:1]};
-        last_a <= a[0];
-        index <= index + 1;
+        p <= {new_p[33:2]};
+        a <= {new_p[1:0], a[31:2]};
+        last_a <= a[1];
+        index <= index + 2;
 
-        if (index == 31) state <= Ready;
+        if (index == 30) state <= Ready;  // on last step
     endrule
 
     method Action start(Pair in) if (state == Idle);
         a <= in[0];
-        last_a <= 0;
         b <= in[1];
+        last_a <= 0;
         p <= 0;
         index <= 0;
         state <= Busy;

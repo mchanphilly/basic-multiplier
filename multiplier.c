@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#define DEBUG
+// #define DEBUG
 
 void end_case(FILE* fptr) {
     printf("deadbeef cap\n");
