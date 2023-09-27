@@ -15,22 +15,6 @@ module mkMultiplierUnitTest(Empty);
     Reg#(MaxTestAddress) test_index <- mkReg(0);
     FIFO#(Pair) expected <- mkFIFO;
 
-    // I wonder if there's a better way of doing this
-    // First is operands, second is results
-    function Vector#(2, Pair) generate_pair(TestPacket packet);
-        Pair operands = newVector;
-        operands[0] = packet[0];
-        operands[1] = packet[1];
-        Pair next_expected = newVector;
-        next_expected[0] = packet[2];
-        next_expected[1] = packet[3];
-
-        Vector#(2, Pair) out = newVector;
-        out[0] = operands;
-        out[1] = next_expected;
-        return out;
-    endfunction
-
     // This rule keeps us requesting
     rule puts;
         test_index <= test_index + 1;
@@ -52,7 +36,6 @@ module mkMultiplierUnitTest(Empty);
             current_test[2],
             current_test[3]);
 
-        // Vector#(2, Pair) pairs = unpack(pack(current_test));  // Trick
         Pair operands = unpack({current_test[0], current_test[1]});
         Pair results = unpack({current_test[2], current_test[3]});
 
