@@ -20,17 +20,19 @@ void log_multiply(FILE* fptr, int32_t a, int32_t b) {
 }
 
 void specific_multiply(FILE* fptr) {
+    // Non-negatives first
     log_multiply(fptr, 0, 0);  // 0 identity, easy
     log_multiply(fptr, 0, 1);  
     log_multiply(fptr, 1, 1);  // 1 identity, easy
+    log_multiply(fptr, INT32_MAX, 0);
+    log_multiply(fptr, INT32_MAX, 1);
+    log_multiply(fptr, INT32_MAX, INT32_MAX);
+    // Signed below
     log_multiply(fptr, -1, 0);
     log_multiply(fptr, -1, 1);  // sign extended
     log_multiply(fptr, -1, -1);  // negative times negative?
-    log_multiply(fptr, INT32_MAX, 0);
-    log_multiply(fptr, INT32_MAX, 1);
     log_multiply(fptr, INT32_MIN, 0);
     log_multiply(fptr, INT32_MIN, 1);
-    log_multiply(fptr, INT32_MAX, INT32_MAX);
     log_multiply(fptr, INT32_MIN, INT32_MIN);  // Only case that gives 63 bit result, according to H&P
     log_multiply(fptr, INT32_MAX, INT32_MIN);
 }

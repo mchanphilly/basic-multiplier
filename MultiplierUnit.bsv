@@ -18,17 +18,31 @@ typedef enum {
 (* synthesize *)
 module mkMultiplierUnit(MultiplierUnit);
     Reg#(MultiplierState) state <- mkReg(Idle); 
-    FIFO#(Pair) last_inputs <- mkFIFO;
+    Reg#(Word) a <- mkRegU;
+    Reg#(Word) b <- mkRegU;
+    Reg#(Word) p <- mkRegU;
+    Reg#(Bit#(5)) index <- mkRegU;  // only need 0 through 31
+
+    rule work(state == Busy);
+        Bit#(33) new_p = (a[0] == 'b1) ? {0,p} + {0,b} : {0,p};  // (1); may need carry
+        p <= {new_p[32:1]};
+        a <= {new_p[0], a[31:1]};
+        index <= index + 1;
+
+        if (index == 31) state <= Ready;
+    endrule
 
     method Action start(Pair in) if (state == Idle);
-        last_inputs.enq(in);
-        state <= Ready;
+        a <= in[0];
+        b <= in[1];
+        p <= 0;
+        index <= 0;
+        state <= Busy;
     endmethod
 
     method ActionValue#(Pair) result if (state == Ready);
-        last_inputs.deq;
         state <= Idle;
-        return last_inputs.first;
+        return unpack({p, a});
     endmethod
 endmodule
 
