@@ -12,9 +12,10 @@ module mkMultiplierUnitTest(Empty);
     MultiplierUnit dut <- mkMultiplierUnit;
 
     BRAM1Port#(MaxTestAddress, TestPacket) tests <- mkBRAM1Server(cfg);
-    Reg#(MaxTestAddress) test_index <- mkReg(0);
+    Reg#(MaxTestAddress) request_index <- mkReg(0);
     FIFO#(Pair) expected <- mkFIFO;
     Reg#(Word) cycles <- mkReg(0);
+    Reg#(Word) last_solved <- mkReg(0);
 
     rule tick;
         cycles <= cycles + 1;
@@ -22,10 +23,10 @@ module mkMultiplierUnitTest(Empty);
 
     // This rule keeps us requesting
     rule puts;
-        test_index <= test_index + 1;
+        request_index <= request_index + 1;
         let request = BRAMRequest{
             write: unpack(0),
-            address: test_index
+            address: request_index
         };
         tests.portA.request.put(request);
     endrule
@@ -55,9 +56,10 @@ module mkMultiplierUnitTest(Empty);
 
     rule answer;
         Pair result <- dut.result;
+        last_solved <= last_solved + 1;
         if (result != expected.first) begin
             $display("Result was %x but expected %x", result, expected.first);
-            $display("Ended at %0d cycles and around the %0d test", cycles, test_index - 2);
+            $display("Ended at %0d cycles after solving the %0d test", cycles, last_solved);
             $finish;
         end
         expected.deq;
