@@ -101,4 +101,16 @@ module mkMultiplierUnit(MultiplierUnit);
 endmodule
 
 
+(* synthesize *)
+module mkBuiltInMultiplierUnit(MultiplierUnit);
+    FIFO#(Bit#(64)) data <- mkFIFO;
 
+    method Action start(Pair in);
+        data.enq(signExtend(in[0]) * signExtend(in[1]));
+    endmethod
+
+    method ActionValue#(Pair) result;
+        data.deq;
+        return unpack(data.first);
+    endmethod
+endmodule
