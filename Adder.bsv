@@ -1,9 +1,11 @@
 interface Adder#(type t);
     method t add(t a, t b);
+    method t sub(t a, t b);
 endinterface
 
 module mkAdder(Adder#(t)) provisos (Bits#(t, t_bits), Arith#(t));
-    method add(t a, t b) = a + b;
+    method t add(t a, t b) = a + b;
+    method t sub(t a, t b) = a - b;
 endmodule
 
 (* synthesize *)

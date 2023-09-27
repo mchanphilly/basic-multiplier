@@ -35,21 +35,30 @@ module mkMultiplierUnit(MultiplierUnit);
     rule work(state == Busy);
         // Booth recoding
         // Mux choosing between 9; default is optimized out.
-
+        // {magnitude (0 through 4), sign (bit)}
         Bit#(35) operand = case ({a[2:0], last_a})
-            4'b100_0:           {- b4_};
-            4'b101_0, 4'b100_1: {- b3_};
-            4'b110_0, 4'b101_1: {- b2_};
-            4'b111_0, 4'b110_1: {- b_};
-            4'b000_0, 4'b111_1: {0};
-            4'b001_0, 4'b000_1: {b_};
-            4'b010_0, 4'b001_1: {b2_};
-            4'b011_0, 4'b010_1: {b3_};
-            4'b011_1:           {b4_};
-            default: {0};  // never happens
+            4'b100_0:           b4_;
+            4'b101_0, 4'b100_1: b3_;     
+            4'b110_0, 4'b101_1: b2_;     
+            4'b111_0, 4'b110_1: b_;     
+            4'b000_0, 4'b111_1: 0;
+            4'b001_0, 4'b000_1: b_;    
+            4'b010_0, 4'b001_1: b2_;     
+            4'b011_0, 4'b010_1: b3_;     
+            4'b011_1:           b4_;
         endcase;
 
-        let new_p = adder.add(p_, operand);
+        Bool is_add = case ({a[2:0], last_a})
+            4'b100_0, 4'b101_0, 4'b100_1,
+            4'b110_0, 4'b101_1, 4'b111_0,
+            4'b110_1, 4'b000_0, 4'b111_1: False;
+            4'b001_0, 4'b000_1, 4'b010_0,
+            4'b001_1, 4'b011_0, 4'b010_1,
+            4'b011_1:                     True;
+        endcase;
+
+        let new_p = (is_add) ? adder.add(p_, operand) :
+                               adder.sub(p_, operand);
 
         p <= {new_p[34:3]};
         a <= {new_p[2:0], a[31:3]};
