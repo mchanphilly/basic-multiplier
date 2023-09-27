@@ -17,6 +17,13 @@ module mkMultiplierUnitTest(Empty);
     Reg#(Word) cycles <- mkReg(0);
     Reg#(Word) last_solved <- mkReg(0);
 
+    function Action conclude;
+        action
+        $display("Ended at %0d cycles after solving the %0d test", cycles, last_solved);
+        $finish;
+        endaction
+    endfunction
+
     rule tick;
         cycles <= cycles + 1;
     endrule
@@ -50,7 +57,7 @@ module mkMultiplierUnitTest(Empty);
 
         if (current_test[3] == 'hdeadbeef) begin
             $display("deadbeef detected; finishing at %0d cycles", cycles);
-            $finish;
+            conclude;
         end
     endrule
 
@@ -59,8 +66,7 @@ module mkMultiplierUnitTest(Empty);
         last_solved <= last_solved + 1;
         if (result != expected.first) begin
             $display("Result was %x but expected %x", result, expected.first);
-            $display("Ended at %0d cycles after solving the %0d test", cycles, last_solved);
-            $finish;
+            conclude;
         end
         expected.deq;
     endrule

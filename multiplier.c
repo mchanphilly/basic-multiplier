@@ -50,7 +50,7 @@ void rand_multiply(FILE* fptr) {
 // Put them all into the file
 int main() {
     const int SEED = 2;
-    const int cases = 0;
+    const int cases = 900;
 
     srand(SEED);
     FILE *fptr = fopen("test_cases.vmh", "w");
