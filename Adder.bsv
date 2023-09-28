@@ -1,11 +1,11 @@
 interface Adder#(type t);
-    method t add(t a, t b);
-    method t sub(t a, t b);
+    method t add(t a, t b, Bool isSub);
 endinterface
 
-module mkAdder(Adder#(t)) provisos (Bits#(t, t_bits), Arith#(t));
-    method t add(t a, t b) = a + b;
-    method t sub(t a, t b) = a - b;
+module mkAdder(Adder#(t)) provisos (Bits#(t, t_bits), Arith#(t), Bitwise#(t));
+    method t add(t a, t b, Bool isSub);
+        return (isSub) ? a - b :  a + b ;
+    endmethod
 endmodule
 
 (* synthesize *)

@@ -48,17 +48,15 @@ module mkMultiplierUnit(MultiplierUnit);
             4'b011_1:           b4_;
         endcase;
 
-        Bool is_add = case ({a[2:0], last_a})
-            4'b100_0, 4'b101_0, 4'b100_1,
-            4'b110_0, 4'b101_1, 4'b111_0,
-            4'b110_1, 4'b000_0, 4'b111_1: False;
-            4'b001_0, 4'b000_1, 4'b010_0,
-            4'b001_1, 4'b011_0, 4'b010_1,
-            4'b011_1:                     True;
+        Bool isSub = case({a[2:0], last_a})
+            4'b100_0,
+            4'b101_0, 4'b100_1,     
+            4'b110_0, 4'b101_1,    
+            4'b111_0, 4'b110_1: True;
+            default: False;
         endcase;
-
-        let new_p = (is_add) ? adder.add(p_, operand) :
-                               adder.sub(p_, operand);
+        
+        let new_p = adder.add(p_, operand, isSub);
 
         p <= {new_p[34:3]};
         a <= {new_p[2:0], a[31:3]};
@@ -72,8 +70,10 @@ module mkMultiplierUnit(MultiplierUnit);
         a <= in[0];
         b <= in[1];
         let op1 = signExtend(in[1]);
-        let op2 = {signExtend(in[1]), 1'b0};
-        b3_ <= adder.add(op1, op2);
+        let op2 = signExtend(in[1]) * 2;
+        let sum = adder.add(op1, op2, False); 
+        b3_ <= sum;
+                
         last_a <= 0;
         p <= 0;
         index <= 0;
@@ -86,12 +86,18 @@ module mkMultiplierUnit(MultiplierUnit);
         Bit#(35) operand = case ({a[1:0], last_a})
             3'b111, 3'b000: {0};
             3'b001, 3'b010: {b_};
-            3'b101, 3'b110: {- b_};
+            3'b101, 3'b110: {b_};
             3'b011: {b2_};
-            3'b100: {- b2_};
+            3'b100: {b2_};
             default: {0};  // never happens
         endcase;
-        let new_p = adder.add(p_, operand);
+
+        Bool isSub = case({a[1:0], last_a})
+            3'b101, 3'b110, 3'b100: True;
+            default: False;
+        endcase;
+    
+        let new_p = adder.add(p_, operand, isSub);
 
         let p_ = {new_p[33:2]};
         let a_ = {new_p[1:0], a[31:2]};
