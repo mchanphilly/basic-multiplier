@@ -39,8 +39,8 @@ void specific_multiply(FILE* fptr) {
 
 void rand_multiply(FILE* fptr) {
     // So we get both.
-    int32_t a = RAND_MAX - 2 * rand();
-    int32_t b = RAND_MAX - 2 * rand();
+    int32_t a = rand() - rand();
+    int32_t b = rand() - rand();
     log_multiply(fptr, a, b);
 }
 
