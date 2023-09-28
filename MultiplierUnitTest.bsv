@@ -3,7 +3,7 @@ import Vector::*;
 import BRAM::*;
 import FIFO::*;
 
-typedef Bit#(10) MaxTestAddress;  // 10 bits for 1024 tests
+typedef Bit#(10) MaxTestAddress;  // 10 bits for max 1024 tests
 typedef Vector#(4, Word) TestPacket;
 
 module mkMultiplierUnitTest(Empty);
@@ -38,10 +38,11 @@ module mkMultiplierUnitTest(Empty);
         tests.portA.request.put(request);
     endrule
 
-    // This rule 
+    // This rule queries the dut
     rule question;
         TestPacket current_test <- tests.portA.response.get();
-        current_test = reverse(current_test);  // Reverse order because of the way the vmh is written/read
+        current_test = reverse(current_test);
+        // Reverse order because of the way the vmh is written/read
         
         // $display("%x times %x get %x%x",
         //     current_test[0],
@@ -52,7 +53,7 @@ module mkMultiplierUnitTest(Empty);
         Pair operands = unpack({current_test[0], current_test[1]});
         Pair results = unpack({current_test[2], current_test[3]});
 
-        dut.start(operands);  // Reverse order because of the way things are stored
+        dut.start(operands);
         expected.enq(results);
 
         if (current_test[3] == 'hdeadbeef) begin
